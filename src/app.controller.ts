@@ -6,9 +6,12 @@ import {
   Put,
   Param,
   Body,
-  HttpCode,
+  HttpCode, //return a specific response like 200 we can change it to 205
+  ParseUUIDPipe, //using for the ids // what Pipe does saying if the id is a number or string in console log and if it has a bad requrest or not its for validation
+  ParseEnumPipe, // using for the types // if the something wrong in the api like banana instead of income or expense it will say that is not valid
 } from '@nestjs/common';
-import {  ReportType } from 'src/data';
+import { CreateReportDto, UpdateReportDto } from './dtos/report.dto';
+import { ReportType } from 'src/data';
 // import { v4 as uuid } from 'uuid';
 import { AppService } from './app.service';
 
@@ -24,7 +27,10 @@ export class AppController {
   }
 
   @Get(':id')
-  getReportById(@Param('type') type: string, @Param('id') id: string) {
+  getReportById(
+    @Param('type', new ParseEnumPipe(ReportType)) type: string,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
     const reportType =
       type === 'income' ? ReportType.INCOME : ReportType.EXPENSE;
     return this.appService.getReportById(reportType, id);
@@ -32,8 +38,8 @@ export class AppController {
 
   @Post()
   createReport(
-    @Body() { amount, source }: { amount: number; source: string },
-    @Param('type') type: string,
+    @Body() { amount, source }: CreateReportDto,
+    @Param('type', new ParseEnumPipe(ReportType)) type: string,
   ) {
     const reportType =
       type === 'income' ? ReportType.INCOME : ReportType.EXPENSE;
@@ -42,17 +48,18 @@ export class AppController {
 
   @Put(':id')
   updateReport(
-    @Param('type') type: string,
-    @Param('id') id: string,
-    @Body() body: { amount: number; source: string },
+    @Param('type', new ParseEnumPipe(ReportType)) type: string,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: UpdateReportDto,
   ) {
+    console.log(body);
     const reportType =
       type === 'income' ? ReportType.INCOME : ReportType.EXPENSE;
     return this.appService.updateReport(reportType, id, body);
   }
   @HttpCode(204)
   @Delete(':id')
-  deletedReport(@Param('id') id: string) {
-    return this.appService.deleteReport(id)
+  deletedReport(@Param('id', ParseUUIDPipe) id: string) {
+    return this.appService.deleteReport(id);
   }
 }

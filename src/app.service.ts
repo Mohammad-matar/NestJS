@@ -6,6 +6,10 @@ interface Report {
   amount: number;
   source: string;
 }
+interface UpdateReport {
+  amount?: number;
+  source?: string;
+}
 //Injectable is to inject the modules that we need to another file
 @Injectable()
 //modules to adding  and managing dependencies
@@ -33,7 +37,7 @@ export class AppService {
     return newReport;
   }
 
-  updateReport(type: ReportType, id: string, body: Report) {
+  updateReport(type: ReportType, id: string, body: UpdateReport) {
     const reportToUpdate = data.report
       .filter((report) => report.type === type)
       .find((report) => report.id === id);
